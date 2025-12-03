@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 19:36:09 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/03 20:00:41 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,20 +24,12 @@
 # define CYAN				"\033[1;96m"
 # define RESET 				"\033[0m"
 
-typedef struct s_pipex
+typedef struct s_node
 {
-    int		infile;
-    int		outfile;
-    int		pipe_fd[2];
-    pid_t	pid1;
-    pid_t	pid2;
-}				t_pipex;
-
-typedef struct s_cmd
-{
-    char	**cmd_args;
-    char	*cmd_path;
-}				t_cmd;
+    char			*data;
+    char            *args[1000];
+    struct s_node	*next;
+}				t_node;
 
 
 //error handling
@@ -47,7 +39,7 @@ void	child_process(char **argv, char **envp, int *fd);
 void	execute(char *argv, char **envp);
 char	*find_valid_path(char *cmd, char **envp);
 char	*make_path(char *uncompleted_path, char *cmd);
-
+char    *add_node(t_node **head, char *data);
 //garbage collector
 
 typedef struct s_gc_node
