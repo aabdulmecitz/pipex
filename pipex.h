@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 20:20:19 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/03 20:32:20 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ char	*make_path(char *uncompleted_path, char *cmd);
 t_node	*create_node(char *cmd_str);
 t_node	*add_command(t_node **head, char *cmd_str);
 void	execute_from_node(t_node *node, char **envp);
+
 
 //garbage collector
 
