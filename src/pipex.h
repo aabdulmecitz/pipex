@@ -6,14 +6,14 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 21:02:41 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/03 21:09:39 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-# include "lib/libft/libft.h"
+# include "../lib/libft/libft.h"
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
