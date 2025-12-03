@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:28 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 19:34:35 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/03 20:40:50 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,20 @@ static int	gc_add_node(t_gc *gc, void *ptr)
 	new_node->next = gc->head;
 	gc->head = new_node;
 	return (0);
+}
+
+void	gc_add(t_gc **gc, void *ptr)
+{
+	if (!gc || !ptr)
+		return ;
+	if (!*gc)
+	{
+		*gc = (t_gc *)malloc(sizeof(t_gc));
+		if (!*gc)
+			return ;
+		(*gc)->head = NULL;
+	}
+	gc_add_node(*gc, ptr);
 }
 
 void	*gc_malloc(t_gc **gc, size_t size)
