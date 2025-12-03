@@ -1,5 +1,4 @@
 NAME			= pipex
-NAME_BONUS		= pipex
 
 GREEN			= \033[0;32m
 RED				= \033[0;31m
@@ -11,62 +10,40 @@ CC 				= cc
 
 REMOVE 			= rm -f
 
-SRCS_DIR		= ./src/
+SRCS 			= pipex.c utils.c gc.c error.c
 
-SRCS 			= $(addprefix $(SRCS_DIR),\
-				pipex.c utils.c gc.c error.c)
+OBJS			= ${SRCS:.c=.o}
 
-BONUS_SRC		= $(addprefix $(SRCS_DIR),\
-				pipex_bonus.c utils_bonus.c gc_bonus.c error_bonus.c)
+${NAME}: ${OBJS} ${LIBFT}
+			${CC} -Wall -Wextra -Werror ${OBJS} ${LIBFT} -g -o ${NAME}
+			@echo "$(NAME): $(GREEN)$(NAME) was compiled.$(RESET)"
+			@echo
 
-${NAME}: 		
-				${CC} -Wall -Wextra -Werror ${SRCS} ${LIBFT} -g -o ${NAME}
-				@echo "$(NAME): $(GREEN)$(NAME) was compiled.$(RESET)"
-				@echo
+all:			${NAME}
 
-all:			${NAME} ${LIBFT} 
-bonus:			${NAME_BONUS} ${LIBFT} 
+run:			all
+			./${NAME} infile "cat -e" "wc -l" outfile
 
-${NAME_BONUS}: 		
-				${CC}  -Wall -Wextra -Werror  ${BONUS_SRC} ${LIBFT} -g -o ${NAME_BONUS}
-				@echo "$(NAME_BONUS): $(GREEN)$(NAME_BONUS) was compiled.$(RESET)"
-				@echo
+%.o:			%.c
+			${CC} -Wall -Wextra -Werror -c $< -o $@
 
 ${LIBFT}:
-				@echo
-				make bonus -C lib/libft
+			@echo
+			make bonus -C lib/libft
 
 clean:
-				make clean -C lib/libft
-				@echo
+			${REMOVE} ${OBJS}
+			make clean -C lib/libft
+			@echo
 
 fclean:
-				${REMOVE} ${NAME} ${NAME_BONUS}
-				@echo "${NAME}: ${RED}${NAME} and ${NAME_BONUS} were deleted${RESET}"
-				@echo
-push:
-	git add .
-	git commit -m "commit"
-	git push
+			${REMOVE} ${NAME} ${OBJS}
+			@echo "${NAME}: ${RED}${NAME} was deleted${RESET}"
+			@echo
 
 re:				fclean all
-
-re_bonus:		fclean all_bonus
-
-compile_libs:
-	@make -sC lib/libft
-	@make clean -sC lib/libft
-
-
-update:
-	git submodule update --init --recursive --remote
 
 valgrind:
 	$(VALGRIND) ./pipex txt1.txt "ls -l" "wc -l" txt2.txt
 
-
-.PHONY:			all clean fclean re rebonus valgrind run makefile
-
-#./pipex txt1.txt "ls -l" "wc -l" txt2.txt
-#./pipex txt1.txt "ls -l" "wc -l" "cat -e" txt2.txt
-#./pipex here_doc "ls -l" "wc -l" txt2.txt
+.PHONY:			all clean fclean re valgrind

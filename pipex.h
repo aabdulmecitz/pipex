@@ -6,17 +6,19 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 20:00:41 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/03 20:20:19 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-# include "../lib/libft/libft.h"
+# include "lib/libft/libft.h"
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <sys/wait.h>
+# include <stdio.h>
 
 # define GREEN				"\033[0;32m"
 # define RED 				"\033[1;31m"
@@ -36,10 +38,14 @@ typedef struct s_node
 void	err(char *msg);
 void	err_args(void);
 void	child_process(char **argv, char **envp, int *fd);
+void	parent_process(char **argv, char **envp, int *fd);
 void	execute(char *argv, char **envp);
 char	*find_valid_path(char *cmd, char **envp);
 char	*make_path(char *uncompleted_path, char *cmd);
-char    *add_node(t_node **head, char *data);
+t_node	*create_node(char *cmd_str);
+t_node	*add_command(t_node **head, char *cmd_str);
+void	execute_from_node(t_node *node, char **envp);
+
 //garbage collector
 
 typedef struct s_gc_node
