@@ -10,7 +10,7 @@ CC 				= cc
 
 REMOVE 			= rm -f
 
-SRCS 			= pipex.c utils.c gc.c error.c
+SRCS 			= pipex.c utils.c gc.c error.c utils2.c
 
 OBJS			= ${SRCS:.c=.o}
 
