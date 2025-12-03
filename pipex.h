@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 20:56:16 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/03 21:02:41 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,32 +20,29 @@
 # include <sys/wait.h>
 # include <stdio.h>
 
-# define GREEN				"\033[0;32m"
-# define RED 				"\033[1;31m"
-# define GREY 				"\033[0;90m"
-# define CYAN				"\033[1;96m"
-# define RESET 				"\033[0m"
+# define GREEN "\033[0;32m"
+# define RED "\033[1;31m"
+# define GREY "\033[0;90m"
+# define CYAN "\033[1;96m"
+# define RESET "\033[0m"
 
-typedef struct  s_node
+typedef struct s_node
 {
-	char		    *data;
-	char		    *args[1000];
+	char			*data;
+	char			*args[1000];
 	struct s_node	*next;
-}			        t_node;
+}	t_node;
 
-// Garbage collector structures
 typedef struct s_gc_node
 {
-	void			    *ptr;
+	void				*ptr;
 	struct s_gc_node	*next;
-}			            t_gc_node;
+}	t_gc_node;
 
 typedef struct s_gc
 {
 	t_gc_node	*head;
-}			    t_gc;
-
-// Function declarations
+}	t_gc;
 
 void	err(char *msg);
 void	err_args(void);
@@ -57,9 +54,6 @@ char	*make_path(char *uncompleted_path, char *cmd, t_gc **gc);
 t_node	*create_node(char *cmd_str, t_gc **gc);
 t_node	*add_command(t_node **head, char *cmd_str, t_gc **gc);
 void	execute_from_node(t_node *node, char **envp, t_gc **gc);
-
-// Garbage collector functions
-
 void	*gc_malloc(t_gc **gc, size_t size);
 void	gc_free(t_gc *gc);
 void	gc_add(t_gc **gc, void *ptr);
