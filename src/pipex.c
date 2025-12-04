@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:36 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 20:58:41 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/04 16:46:56 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,5 @@ int	main(int argc, char **argv, char **envp)
 		err("Fork Error!");
 	if (pid != 0)
 		parent_process(argv, envp, fd, &gc);
-	gc_free(gc);
 	return (0);
 }
