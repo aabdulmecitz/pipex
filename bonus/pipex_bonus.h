@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/04 16:10:43 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/04 16:19:11 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,6 @@ typedef struct s_pipe_data
 
 void	err(char *msg);
 void	err_args(void);
-void	child_process(char **argv, char **envp, int *fd, t_gc **gc);
-void	parent_process(char **argv, char **envp, int *fd, t_gc **gc);
 void	execute(char *argv, char **envp, t_gc **gc);
 char	*find_valid_path(char *cmd, char **envp, t_gc **gc);
 char	*make_path(char *uncompleted_path, char *cmd, t_gc **gc);
@@ -67,7 +65,7 @@ void	*gc_malloc(t_gc **gc, size_t size);
 void	gc_free(t_gc *gc);
 void	gc_add(t_gc **gc, void *ptr);
 int		is_here_doc(char *str);
-void	execute_multiple_pipes(char **argv, int argc, char **envp, t_gc **gc);
-void	execute_here_doc(char **argv, int argc, char **envp, t_gc **gc);
+void	execute_multiple_pipes(t_pipe_data data);
+void	execute_here_doc(t_pipe_data data);
 
 #endif

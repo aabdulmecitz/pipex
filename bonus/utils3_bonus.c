@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 21:25:00 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/04 15:55:24 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/04 16:21:28 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,30 +66,27 @@ void	execute_pipe_loop(t_pipe_data data, int *prev_fd)
 	}
 }
 
-void	execute_multiple_pipes(char **argv, int argc, char **envp, t_gc **gc)
+void	execute_multiple_pipes(t_pipe_data data)
 {
-	int			infile;
-	int			outfile;
-	int			prev_fd;
-	t_pipe_data	data;
+	int		infile;
+	int		outfile;
+	int		prev_fd;
 
-	infile = open(argv[1], O_RDONLY);
+	infile = open(data.argv[1], O_RDONLY);
 	if (infile == -1)
 		err("open");
 	prev_fd = infile;
-	data.argv = argv;
-	data.argc = argc;
-	data.envp = envp;
-	data.gc = gc;
 	execute_pipe_loop(data, &prev_fd);
-	outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	outfile = open(data.argv[data.argc - 1], O_WRONLY | O_CREAT | O_TRUNC,
+			0644);
 	if (outfile == -1)
 		err("open");
 	if (dup2(prev_fd, STDIN_FILENO) == -1)
 		err("dup2");
 	if (dup2(outfile, STDOUT_FILENO) == -1)
 		err("dup2");
-	(close(prev_fd), close(outfile), execute(argv[argc - 2], envp, gc));
+	(close(prev_fd), close(outfile));
+	execute(data.argv[data.argc - 2], data.envp, data.gc);
 }
 
 void	execute_here_doc_loop(t_pipe_data data, int *prev_fd)
@@ -119,30 +116,30 @@ void	execute_here_doc_loop(t_pipe_data data, int *prev_fd)
 	}
 }
 
-void	execute_here_doc(char **argv, int argc, char **envp, t_gc **gc)
+void	execute_here_doc(t_pipe_data data)
 {
-	int			fd[2];
-	int			prev_fd;
-	pid_t		pid;
-	t_pipe_data	data;
-	int			outfile;
+	int		fd[2];
+	int		prev_fd;
+	pid_t	pid;
+	int		outfile;
 
-	if (argc < 6)
+	if (data.argc < 6)
 		err_args();
 	if (pipe(fd) == -1)
 		err("Pipe has not been started.");
 	pid = fork();
 	if (pid == 0)
-		(execute_here_doc_write(fd, argv[2]), exit(0));
+		(execute_here_doc_write(fd, data.argv[2]), exit(0));
 	if (pid == -1)
 		err("fork");
 	close(fd[1]);
 	prev_fd = fd[0];
-	data = (t_pipe_data){argv, argc, envp, gc};
 	execute_here_doc_loop(data, &prev_fd);
-	outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	outfile = open(data.argv[data.argc - 1], O_WRONLY | O_CREAT | O_APPEND,
+			0644);
 	if (outfile == -1 || dup2(prev_fd, STDIN_FILENO) == -1
 		|| dup2(outfile, STDOUT_FILENO) == -1)
 		err("open");
-	(close(prev_fd), close(outfile), execute(argv[argc - 2], envp, gc));
+	(close(prev_fd), close(outfile));
+	execute(data.argv[data.argc - 2], data.envp, data.gc);
 }
