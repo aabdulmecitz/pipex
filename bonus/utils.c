@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:31:00 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 21:24:23 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/04 16:00:21 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,17 +47,12 @@ int	is_here_doc(char *str)
 	return (ft_strncmp(str, "here_doc", 8) == 0);
 }
 
-void	execute_multiple_pipes(char **argv, int argc, char **envp, t_gc **gc)
+void	exec_pipe_chain(int *infile, int argc, char **argv, char **envp, t_gc **gc)
 {
-	int		infile;
-	int		outfile;
 	int		fd[2];
 	pid_t	pid;
 	int		i;
 
-	infile = open(argv[1], O_RDONLY);
-	if (infile == -1)
-		err("open");
 	i = 2;
 	while (i < argc - 1)
 	{
@@ -67,34 +62,37 @@ void	execute_multiple_pipes(char **argv, int argc, char **envp, t_gc **gc)
 		if (pid == 0)
 		{
 			close(fd[0]);
-			if (i == 2)
-			{
-				if (dup2(infile, STDIN_FILENO) == -1)
-					err("dup2");
-			}
+			if (i == 2 && dup2(*infile, STDIN_FILENO) == -1)
+				err("dup2");
 			if (dup2(fd[1], STDOUT_FILENO) == -1)
 				err("dup2");
-			close(fd[1]);
-			execute(argv[i], envp, gc);
+			(close(fd[1]), execute(argv[i], envp, gc));
 		}
 		if (pid == -1)
 			err("fork");
 		close(fd[1]);
 		if (i != 2)
-			close(infile);
-		infile = fd[0];
+			close(*infile);
+		*infile = fd[0];
 		i++;
 	}
+}
+
+void	execute_multiple_pipes(char **argv, int argc, char **envp, t_gc **gc)
+{
+	int	infile;
+	int	outfile;
+
+	infile = open(argv[1], O_RDONLY);
+	if (infile == -1)
+		err("open");
+	exec_pipe_chain(&infile, argc, argv, envp, gc);
 	outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile == -1)
 		err("open");
-	if (dup2(infile, STDIN_FILENO) == -1)
+	if (dup2(infile, STDIN_FILENO) == -1 || dup2(outfile, STDOUT_FILENO) == -1)
 		err("dup2");
-	if (dup2(outfile, STDOUT_FILENO) == -1)
-		err("dup2");
-	close(infile);
-	close(outfile);
-	execute(argv[argc - 2], envp, gc);
+	(close(infile), close(outfile), execute(argv[argc - 2], envp, gc));
 }
 
 void	execute_here_doc(char **argv, int argc, char **envp, t_gc **gc)

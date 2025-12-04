@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   pipex_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/03 21:17:18 by aozkaya          ###   ########.fr       */
+/*   Updated: 2025/12/04 16:01:57 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,14 @@ typedef struct s_gc
 {
 	t_gc_node	*head;
 }	t_gc;
+
+typedef struct s_pipe_data
+{
+	char	**argv;
+	int		argc;
+	char	**envp;
+	t_gc	**gc;
+}	t_pipe_data;
 
 void	err(char *msg);
 void	err_args(void);
