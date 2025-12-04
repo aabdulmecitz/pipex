@@ -18,7 +18,7 @@ BONUS_DIR		= bonus
 
 SRCS 			= $(addprefix ${SRC_DIR}/,pipex.c utils.c utils2.c gc.c error.c)
 BONUS 			= $(addprefix ${BONUS_DIR}/,pipex_bonus.c utils_bonus.c utils2_bonus.c \
-				  gc_bonus.c error_bonus.c)
+				  utils3_bonus.c gc_bonus.c error_bonus.c)
 
 OBJS			= ${SRCS:.c=.o}
 OBJS_BONUS		= ${BONUS:.c=.o}
@@ -41,7 +41,10 @@ run:			all
 			./${NAME} infile "cat -e" "wc -l" outfile
 
 run_bonus:		bonus
-			./${NAME_BONUS} infile "cat -e" "wc -l" outfile
+			./${NAME_BONUS} infile "cat -e" "wc -l" "cat -e" outfile
+
+run_here_doc_bonus:	bonus
+			./${NAME_BONUS} here_doc LIMITER "cat -e" "wc -l" outfile
 
 %.o:			%.c
 			${CC} ${CFLAGS} -I ${SRC_DIR} -I ${BONUS_DIR} -c $< -o $@
