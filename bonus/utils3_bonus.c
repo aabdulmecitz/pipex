@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 21:25:00 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/04 16:37:52 by aozkaya          ###   ########.fr       */
+/*   Updated: 2026/01/10 16:51:17 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	execute_pipe_loop(t_pipe_data data, int *prev_fd)
 	int		i;
 
 	i = 2;
-	while (i < data.argc - 1)
+	while (i < data.argc - 2)
 	{
 		if (pipe(fd) == -1)
 			err("Pipe has not been started.");
@@ -59,8 +59,6 @@ void	execute_pipe_loop(t_pipe_data data, int *prev_fd)
 		if (pid == -1)
 			err("fork");
 		(close(fd[1]), close(*prev_fd));
-		if (*prev_fd != open(data.argv[1], O_RDONLY))
-			close(*prev_fd);
 		*prev_fd = fd[0];
 		i++;
 	}
