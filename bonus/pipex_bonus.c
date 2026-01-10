@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:36 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/04 16:19:11 by aozkaya          ###   ########.fr       */
+/*   Updated: 2026/01/10 17:16:42 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,12 @@ int	main(int argc, char **argv, char **envp)
 
 	gc = NULL;
 	if (argc < 5)
-		err_args();
+	{
+		if (argc >= 3 && is_here_doc(argv[1]))
+			;
+		else
+			err_args();
+	}
 	data.argv = argv;
 	data.argc = argc;
 	data.envp = envp;

@@ -6,19 +6,18 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 21:25:00 by aozkaya           #+#    #+#             */
-/*   Updated: 2026/01/10 16:51:17 by aozkaya          ###   ########.fr       */
+/*   Updated: 2026/01/10 17:43:32 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	execute_here_doc_write(int fd[2], char *limiter)
+void	execute_here_doc_write(int tmp_fd, char *limiter)
 {
 	char	*line;
 	char	*trimmed;
 	size_t	len;
 
-	close(fd[0]);
 	len = ft_strlen(limiter);
 	while (1)
 	{
@@ -33,9 +32,8 @@ void	execute_here_doc_write(int fd[2], char *limiter)
 			free(trimmed);
 			break ;
 		}
-		(ft_putstr_fd(line, fd[1]), free(line), free(trimmed));
+		(ft_putstr_fd(line, tmp_fd), free(line), free(trimmed));
 	}
-	close(fd[1]);
 }
 
 void	execute_pipe_loop(t_pipe_data data, int *prev_fd)
@@ -116,22 +114,26 @@ void	execute_here_doc_loop(t_pipe_data data, int *prev_fd)
 
 void	execute_here_doc(t_pipe_data data)
 {
-	int		fd[2];
+	int		tmp_fd;
 	int		prev_fd;
-	pid_t	pid;
 	int		outfile;
 
+	tmp_fd = open(".here_doc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (tmp_fd == -1)
+		err("open");
+	execute_here_doc_write(tmp_fd, data.argv[2]);
+	close(tmp_fd);
 	if (data.argc < 6)
-		err_args();
-	if (pipe(fd) == -1)
-		err("Pipe has not been started.");
-	pid = fork();
-	if (pid == 0)
-		(execute_here_doc_write(fd, data.argv[2]), exit(0));
-	if (pid == -1)
-		err("fork");
-	close(fd[1]);
-	prev_fd = fd[0];
+	{
+		unlink(".here_doc_tmp");
+		exit(0);
+	}
+	prev_fd = open(".here_doc_tmp", O_RDONLY);
+	if (prev_fd == -1)
+	{
+		unlink(".here_doc_tmp");
+		err("open");
+	}
 	execute_here_doc_loop(data, &prev_fd);
 	outfile = open(data.argv[data.argc - 1], O_WRONLY | O_CREAT | O_APPEND,
 			0644);
@@ -139,5 +141,6 @@ void	execute_here_doc(t_pipe_data data)
 		|| dup2(outfile, STDOUT_FILENO) == -1)
 		err("open");
 	(close(prev_fd), close(outfile));
+	unlink(".here_doc_tmp");
 	execute(data.argv[data.argc - 2], data.envp, data.gc);
 }
