@@ -19,20 +19,20 @@ int	main(int argc, char **argv, char **envp)
 
 	gc = NULL;
 	if (argc < 5)
-	{
-		if (argc >= 3 && is_here_doc(argv[1]))
-			;
-		else
-			err_args();
-	}
+		err_args();
 	data.argv = argv;
 	data.argc = argc;
 	data.envp = envp;
 	data.gc = &gc;
 	if (is_here_doc(argv[1]))
+	{
+		if (argc < 6)
+			err_args();
 		execute_here_doc(data);
+	}
 	else
 		execute_multiple_pipes(data);
+	wait_children();
 	gc_free(gc);
 	return (0);
 }

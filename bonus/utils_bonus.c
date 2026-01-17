@@ -44,5 +44,13 @@ void	execute(char *argv, char **envp, t_gc **gc)
 
 int	is_here_doc(char *str)
 {
+	if (!str)
+		return (0);
 	return (ft_strncmp(str, "here_doc", 8) == 0);
+}
+
+void	wait_children(void)
+{
+	while (waitpid(-1, NULL, 0) != -1)
+		;
 }

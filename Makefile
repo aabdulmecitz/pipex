@@ -71,5 +71,3 @@ valgrind:
 	$(VALGRIND) ./pipex txt1.txt "ls -l" "wc -l" txt2.txt
 
 .PHONY:			all bonus clean fclean re bonus_re run run_bonus valgrind
-
-.PHONY:			all clean fclean re valgrind

@@ -6,7 +6,7 @@
 /*   By: aozkaya <aozkaya@student.42istanbul.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:29:43 by aozkaya           #+#    #+#             */
-/*   Updated: 2025/12/04 16:19:11 by aozkaya          ###   ########.fr       */
+/*   Updated: 2026/01/10 17:52:09 by aozkaya          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,5 +67,6 @@ void	gc_add(t_gc **gc, void *ptr);
 int		is_here_doc(char *str);
 void	execute_multiple_pipes(t_pipe_data data);
 void	execute_here_doc(t_pipe_data data);
+void	wait_children(void);
 
 #endif
