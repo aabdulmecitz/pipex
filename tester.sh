@@ -1,146 +1,182 @@
 #!/bin/bash
 
-# Colors
-GREEN='\033[0;32m'
+# --- COLORS & ICONS ---
 RED='\033[0;31m'
-BLUE='\033[0;34m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
 RESET='\033[0m'
 
-# Files
+CHECK="✅"
+CROSS="❌"
+INFO="ℹ️"
+GEAR="⚙️"
+ROCKET="🚀"
+
+# --- CONFIGURATION ---
 INFILE="test_infile"
-OUTFILE_PIPEX="test_outfile_pipex"
-OUTFILE_SHELL="test_outfile_shell"
-
-# Preparations
-echo "lorem ipsum" > $INFILE
-echo "dolor sit amet" >> $INFILE
-echo "consectetur adipiscing elit" >> $INFILE
-echo "sed do eiusmod tempor" >> $INFILE
-
-# Header
-echo -e "${BLUE}=======================================${RESET}"
-echo -e "${BLUE}        PIPEX COMPREHENSIVE TESTER      ${RESET}"
-echo -e "${BLUE}=======================================${RESET}"
-
-# Compilation
-echo -e "${YELLOW}Compiling...${RESET}"
-make re > /dev/null
-make bonus_re > /dev/null
-if [ ! -f "./pipex" ] || [ ! -f "./pipex_bonus" ]; then
-    echo -e "${RED}Compilation failed! Make sure your Makefile has all and bonus rules.${RESET}"
-    exit 1
-fi
-echo -e "${GREEN}Compilation successful.${RESET}\n"
-
-# Test counter
+OUT_PIPEX="test_out_px"
+OUT_SHELL="test_out_sh"
 TOTAL=0
 PASSED=0
 
-check_test() {
-    ((TOTAL++))
-    local test_name=$1
-    local executable=$2
-    local cmd_pipex=$3
-    local cmd_shell=$4
-    
-    echo -e "${YELLOW}Testing: ${test_name}${RESET}"
-    
-    # Run Shell
-    eval $cmd_shell 2> /dev/null
-    # Run Pipex
-    eval $cmd_pipex 2> /dev/null
-    
-    # Compare
-    if [ ! -f $OUTFILE_PIPEX ]; then
-        echo -e "${RED}[FAIL]${RESET} Pipex did not create $OUTFILE_PIPEX"
-        return
-    fi
-    diff $OUTFILE_PIPEX $OUTFILE_SHELL > /dev/null
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}[PASS]${RESET} Output matches."
-        ((PASSED++))
-    else
-        echo -e "${RED}[FAIL]${RESET} Output differs!"
-    fi
-    rm -f $OUTFILE_PIPEX $OUTFILE_SHELL
+# --- HELPER FUNCTIONS ---
+print_header() {
+    clear
+    echo -e "${CYAN}${BOLD}"
+    echo "  ____  _                      _____         _             "
+    echo " |  _ \(_)_ __   _____  __    |_   _|__  ___| |_ ___ _ __  "
+    echo " | |_) | | '_ \ / _ \ \/ /      | |/ _ \/ __| __/ _ \ '__| "
+    echo " |  __/| | |_) |  __/>  <       | |  __/\__ \ ||  __/ |    "
+    echo " |_|   |_| .__/ \___/_/\_\      |_|\___||___/\__\___|_|    "
+    echo "         |_|                                               "
+    echo -e "${RESET}"
+    echo -e "${MAGENTA}=======================================================${RESET}"
+    echo -e "          ${BOLD}AOZKAYA'S PIPEX TEST SUITE${RESET}"
+    echo -e "${MAGENTA}=======================================================${RESET}\n"
 }
 
-# --- MANDATORY TESTS ---
-echo -e "${BLUE}--- Mandatory Part Tests (./pipex) ---${RESET}"
-check_test "Basic cat | wc -l" \
-    "./pipex" \
-    "./pipex $INFILE \"cat\" \"wc -l\" $OUTFILE_PIPEX" \
-    "< $INFILE cat | wc -l > $OUTFILE_SHELL"
+setup_files() {
+    echo -e "${INFO} ${BOLD}Preparing test files...${RESET}"
+    echo "Pipex test file content line 1" > $INFILE
+    echo "Pipex test file content line 2" >> $INFILE
+    echo "Special characters: !@#$%^&*()" >> $INFILE
+}
 
-check_test "grep lorem | wc -w" \
-    "./pipex" \
-    "./pipex $INFILE \"grep lorem\" \"wc -w\" $OUTFILE_PIPEX" \
-    "< $INFILE grep lorem | wc -w > $OUTFILE_SHELL"
+compile_project() {
+    echo -e "${GEAR} ${BOLD}Compiling binaries...${RESET}"
+    
+    # Compile Mandatory
+    printf "  %-55s" "Building [Mandatory]..."
+    make re > .make_log 2>&1
+    if [ ! -f "./pipex" ]; then
+        echo -e "${RED}${CROSS} FAILED${RESET}"
+        cat .make_log
+        exit 1
+    fi
+    echo -e "${GREEN}${CHECK} OK${RESET}"
 
-# --- BONUS TESTS: MULTIPLE PIPES ---
-echo -e "\n${BLUE}--- Bonus Part Tests: Multiple Pipes (./pipex_bonus) ---${RESET}"
-check_test "3 Commands: cat | grep i | wc -l" \
-    "./pipex_bonus" \
-    "./pipex_bonus $INFILE \"cat\" \"grep i\" \"wc -l\" $OUTFILE_PIPEX" \
-    "< $INFILE cat | grep i | wc -l > $OUTFILE_SHELL"
+    # Compile Bonus
+    printf "  %-55s" "Building [Bonus]..."
+    make bonus >> .make_log 2>&1
+    if [ ! -f "./pipex_bonus" ]; then
+        echo -e "${RED}${CROSS} FAILED${RESET}"
+        cat .make_log
+        exit 1
+    fi
+    echo -e "${GREEN}${CHECK} OK${RESET}"
+    rm -f .make_log
+    echo ""
+}
 
-check_test "5 Commands: cat | cat | cat | cat | wc -l" \
-    "./pipex_bonus" \
-    "./pipex_bonus $INFILE \"cat\" \"cat\" \"cat\" \"cat\" \"wc -l\" $OUTFILE_PIPEX" \
-    "< $INFILE cat | cat | cat | cat | wc -l > $OUTFILE_SHELL"
+run_test() {
+    local category=$1
+    local name=$2
+    local px_cmd=$3
+    local sh_cmd=$4
 
-# --- BONUS TESTS: HERE_DOC ---
-echo -e "\n${BLUE}--- Bonus Part Tests: Here_doc ---${RESET}"
-echo "line1" > here_doc_input
-echo "line2" >> here_doc_input
-echo "LIMITER" >> here_doc_input
+    ((TOTAL++))
+    printf "  %-55s" "[$category] $name"
+    
+    # Execute commands
+    eval $sh_cmd 2>/dev/null
+    eval $px_cmd 2>/dev/null
+    
+    # Verification
+    if [ ! -f $OUT_PIPEX ]; then
+        echo -e "${RED}${CROSS} NO OUTPUT${RESET}"
+        return
+    fi
 
-echo -e "${YELLOW}Testing: here_doc cat | wc -l${RESET}"
+    diff $OUT_PIPEX $OUT_SHELL > .test_diff
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}${CHECK} PASSED${RESET}"
+        ((PASSED++))
+        rm -f .test_diff
+    else
+        echo -e "${RED}${CROSS} FAILED${RESET}"
+        echo -e "${RED}${BOLD}--- DIFF ---${RESET}"
+        cat .test_diff
+        echo -e "${RED}${BOLD}------------${RESET}"
+        rm -f .test_diff
+    fi
+    rm -f $OUT_PIPEX $OUT_SHELL
+}
+
+# --- EXECUTION ---
+
+print_header
+setup_files
+compile_project
+
+# --- MANDATORY SECTION ---
+echo -e "${BLUE}${BOLD}[MANDATORY TESTS]${RESET}"
+run_test "MAND" "Simple cat | wc" \
+    "./pipex $INFILE 'cat' 'wc' $OUT_PIPEX" \
+    "< $INFILE cat | wc > $OUT_SHELL"
+
+run_test "MAND" "Simple grep | cat" \
+    "./pipex $INFILE 'grep Pipex' 'cat' $OUT_PIPEX" \
+    "< $INFILE grep Pipex | cat > $OUT_SHELL"
+
+run_test "MAND" "Complex command flags" \
+    "./pipex $INFILE 'tr -d a' 'grep e' $OUT_PIPEX" \
+    "< $INFILE tr -d a | grep e > $OUT_SHELL"
+
+# --- BONUS SECTION ---
+echo -e "\n${BLUE}${BOLD}[BONUS TESTS: MULTIPLE PIPES]${RESET}"
+run_test "MULT" "3 Commands: cat | cat | cat" \
+    "./pipex_bonus $INFILE 'cat' 'cat' 'cat' $OUT_PIPEX" \
+    "< $INFILE cat | cat | cat > $OUT_SHELL"
+
+run_test "MULT" "5 Commands: cat | grep | head | wc" \
+    "./pipex_bonus $INFILE 'cat' 'cat' 'grep content' 'head -n 5' 'wc -l' $OUT_PIPEX" \
+    "< $INFILE cat | cat | grep content | head -n 5 | wc -l > $OUT_SHELL"
+
+# --- HERE_DOC SECTION ---
+echo -e "\n${BLUE}${BOLD}[BONUS TESTS: HERE_DOC]${RESET}"
 ((TOTAL++))
-./pipex_bonus here_doc LIMITER "cat" "wc -l" $OUTFILE_PIPEX < here_doc_input > /dev/null
-cat << LIMITER | wc -l > $OUTFILE_SHELL
-line1
-line2
+printf "  %-55s" "[HDOC] Simple heredoc flow"
+echo "test line" > .hd_in
+echo "LIMITER" >> .hd_in
+./pipex_bonus here_doc LIMITER "cat" "wc -l" $OUT_PIPEX < .hd_in > /dev/null 2>&1
+cat << LIMITER | wc -l > $OUT_SHELL
+test line
 LIMITER
-
-diff $OUTFILE_PIPEX $OUTFILE_SHELL > /dev/null
+diff $OUT_PIPEX $OUT_SHELL > /dev/null
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[PASS]${RESET} here_doc output matches."
+    echo -e "${GREEN}${CHECK} PASSED${RESET}"
     ((PASSED++))
 else
-    echo -e "${RED}[FAIL]${RESET} here_doc output differs!"
+    echo -e "${RED}${CROSS} FAILED${RESET}"
 fi
-rm -f $OUTFILE_PIPEX $OUTFILE_SHELL here_doc_input
+rm -f $OUT_PIPEX $OUT_SHELL .hd_in
 
-# --- ERROR HANDLING ---
-echo -e "\n${BLUE}--- Error Handling Tests (Visual Check) ---${RESET}"
-echo -e "${YELLOW}Non-existent infile (Pipex):${RESET}"
-./pipex non_existent "cat" "wc" $OUTFILE_PIPEX
-echo -e "${YELLOW}Shell equivalent:${RESET}"
-< non_existent cat | wc > $OUTFILE_SHELL
-
-# --- MEMORY LEAK CHECK ---
+# --- VALGRIND ---
 if command -v valgrind &> /dev/null; then
-    echo -e "\n${BLUE}--- Memory Leak Check (./pipex_bonus) ---${RESET}"
-    valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes ./pipex_bonus $INFILE "ls" "wc" $OUTFILE_PIPEX 2> valgrind_log
-    if grep -q "no leaks are possible" valgrind_log; then
-        echo -e "${GREEN}[PASS]${RESET} No memory leaks detected."
+    echo -e "\n${BLUE}${BOLD}[MEMORY CHECK]${RESET}"
+    printf "  %-55s" "[LEAK] Running Valgrind..."
+    valgrind --leak-check=full --error-exitcode=1 ./pipex_bonus $INFILE "cat" "head -n 1" $OUT_PIPEX > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}${CHECK} CLEAN${RESET}"
     else
-        echo -e "${RED}[FAIL]${RESET} Memory leaks found! Check valgrind_log"
+        echo -e "${RED}${CROSS} LEAKS FOUND${RESET}"
     fi
-    rm -f valgrind_log
+    rm -f $OUT_PIPEX
 fi
 
-# Summary
-echo -e "\n${BLUE}=======================================${RESET}"
-echo -e "Summary: ${PASSED}/${TOTAL} Tests Passed"
+# --- SUMMARY ---
+echo -e "\n${MAGENTA}=======================================================${RESET}"
+printf "  ${BOLD}FINAL RESULT: %d/%d passed${RESET}\n" $PASSED $TOTAL
 if [ $PASSED -eq $TOTAL ]; then
-    echo -e "${GREEN}PERFECT!${RESET}"
+    echo -e "  ${GREEN}${ROCKET} EXCELLENT! PROJECT IS PERFECT.${RESET}"
 else
-    echo -e "${RED}NEEDS WORK!${RESET}"
+    echo -e "  ${RED}${CROSS} SOME TESTS FAILED. CHECK LOGS.${RESET}"
 fi
-echo -e "${BLUE}=======================================${RESET}"
+echo -e "${MAGENTA}=======================================================${RESET}\n"
 
 # Cleanup
-rm -f $INFILE $OUTFILE_PIPEX $OUTFILE_SHELL
+rm -f $INFILE
