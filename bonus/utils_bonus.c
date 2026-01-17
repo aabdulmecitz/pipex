@@ -54,3 +54,18 @@ void	wait_children(void)
 	while (waitpid(-1, NULL, 0) != -1)
 		;
 }
+
+int	open_file(char *file, int mode)
+{
+	int	fd;
+
+	if (mode == 0)
+		fd = open(file, O_RDONLY);
+	else if (mode == 1)
+		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else
+		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (fd == -1)
+		err(file);
+	return (fd);
+}

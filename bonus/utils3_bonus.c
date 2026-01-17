@@ -34,28 +34,23 @@ static void	child_process(char *cmd, int in_fd, int out_fd, t_pipe_data data)
 
 void	execute_multiple_pipes(t_pipe_data data)
 {
+	int	fd[2];
 	int	infile;
 	int	outfile;
-	int	fd[2];
 	int	prev_fd;
 	int	i;
 
-	infile = open(data.argv[1], O_RDONLY);
-	if (infile == -1)
-		err(data.argv[1]);
-	outfile = open(data.argv[data.argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (outfile == -1)
-		err(data.argv[data.argc - 1]);
+	infile = open_file(data.argv[1], 0);
+	outfile = open_file(data.argv[data.argc - 1], 1);
 	prev_fd = infile;
-	i = 2;
-	while (i < data.argc - 2)
+	i = 1;
+	while (++i < data.argc - 2)
 	{
 		if (pipe(fd) == -1)
 			err("pipe");
 		child_process(data.argv[i], prev_fd, fd[1], data);
 		(close(prev_fd), close(fd[1]));
 		prev_fd = fd[0];
-		i++;
 	}
 	child_process(data.argv[i], prev_fd, outfile, data);
 	(close(prev_fd), close(outfile));
@@ -83,40 +78,41 @@ void	execute_here_doc_write(int tmp_fd, char *limiter)
 	}
 }
 
-void	execute_here_doc(t_pipe_data data)
+static int	init_here_doc(char *limiter)
 {
 	int	tmp_fd;
-	int	outfile;
 	int	prev_fd;
-	int	fd[2];
-	int	i;
 
-	outfile = open(data.argv[data.argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (outfile == -1)
-		err(data.argv[data.argc - 1]);
 	tmp_fd = open(".here_doc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (tmp_fd == -1)
 		err("open tmp");
-	execute_here_doc_write(tmp_fd, data.argv[2]);
+	execute_here_doc_write(tmp_fd, limiter);
 	close(tmp_fd);
 	prev_fd = open(".here_doc_tmp", O_RDONLY);
 	if (prev_fd == -1)
 		err(".here_doc_tmp");
 	unlink(".here_doc_tmp");
-	i = 3;
-	while (i < data.argc - 2)
+	return (prev_fd);
+}
+
+void	execute_here_doc(t_pipe_data data)
+{
+	int	outfile;
+	int	prev_fd;
+	int	fd[2];
+	int	i;
+
+	outfile = open_file(data.argv[data.argc - 1], 2);
+	prev_fd = init_here_doc(data.argv[2]);
+	i = 2;
+	while (++i < data.argc - 2)
 	{
 		if (pipe(fd) == -1)
 			err("pipe");
 		child_process(data.argv[i], prev_fd, fd[1], data);
 		(close(prev_fd), close(fd[1]));
 		prev_fd = fd[0];
-		i++;
 	}
 	child_process(data.argv[i], prev_fd, outfile, data);
 	(close(prev_fd), close(outfile));
 }
-
-
-
-

@@ -58,6 +58,7 @@ void	err_args(void);
 void	execute(char *argv, char **envp, t_gc **gc);
 char	*find_valid_path(char *cmd, char **envp, t_gc **gc);
 char	*make_path(char *uncompleted_path, char *cmd, t_gc **gc);
+int		open_file(char *file, int mode);
 t_node	*create_node(char *cmd_str, t_gc **gc);
 t_node	*add_command(t_node **head, char *cmd_str, t_gc **gc);
 void	execute_from_node(t_node *node, char **envp, t_gc **gc);
