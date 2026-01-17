@@ -63,4 +63,3 @@ Artificial Intelligence (Antigravity/Gemini) was used during this project as a *
 - Better understand the interaction between `fork`, `pipe`, and `dup2`.
 - Learn how to structure iterative loops for complex pipelines in the bonus section.
 - Identify best practices for process synchronization and file descriptor management.
-- Ensure the codebase follows the 42 Norme through interactive feedback.
